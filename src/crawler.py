@@ -23,7 +23,7 @@ def get_page(url: str) -> BeautifulSoup | None:
     except requests.RequestException as e:
         print(f"[crawler] Failed to fetch {url}: {e}")
         return None
-    
+
 
 def get_links(soup: BeautifulSoup, current_url: str) -> list[str]:
     """
@@ -38,3 +38,13 @@ def get_links(soup: BeautifulSoup, current_url: str) -> list[str]:
         if urlparse(absolute).netloc == urlparse(BASE_URL).netloc:
             links.append(absolute)
     return links
+
+
+def get_text(soup: BeautifulSoup) -> str:
+    """
+    Extract visible text content from a page.
+    Strips scripts, styles, and other non-visible elements.
+    """
+    for tag in soup(["script", "style", "meta", "head"]):
+        tag.decompose()
+    return soup.get_text(separator=" ")
