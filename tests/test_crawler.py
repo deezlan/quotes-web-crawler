@@ -2,7 +2,7 @@ import unittest
 import requests
 from unittest.mock import patch, MagicMock
 from bs4 import BeautifulSoup
-from src.crawler import get_page, get_links, BASE_URL
+from src.crawler import get_page, get_links, get_text, BASE_URL
 
 
 class TestGetPage(unittest.TestCase):
@@ -48,6 +48,30 @@ class TestGetLinks(unittest.TestCase):
         soup = self._make_soup('<a href="/tag/love/">Love</a>')
         links = get_links(soup, BASE_URL)
         self.assertIn("https://quotes.toscrape.com/tag/love/", links)
+
+
+class TestGetText(unittest.TestCase):
+
+    def test_extracts_visible_text(self):
+        soup = BeautifulSoup("<p>Hello world</p>", "html.parser")
+        text = get_text(soup)
+        self.assertIn("Hello world", text)
+
+    def test_strips_script_tags(self):
+        soup = BeautifulSoup("<script>alert('x')</script><p>Real</p>", "html.parser")
+        text = get_text(soup)
+        self.assertNotIn("alert", text)
+        self.assertIn("Real", text)
+
+    def test_strips_style_tags(self):
+        soup = BeautifulSoup("<style>.x { color: red }</style><p>Visible</p>", "html.parser")
+        text = get_text(soup)
+        self.assertNotIn("color", text)
+        self.assertIn("Visible", text)
+
+    def test_returns_string(self):
+        soup = BeautifulSoup("<p>Text</p>", "html.parser")
+        self.assertIsInstance(get_text(soup), str)
 
 
 if __name__ == "__main__":
