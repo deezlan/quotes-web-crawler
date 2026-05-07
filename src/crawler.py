@@ -3,6 +3,7 @@ Crawls all pages of the target website, respecting a politeness
 window of at least 6 seconds between requests.
 """
 
+import time
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
@@ -48,3 +49,43 @@ def get_text(soup: BeautifulSoup) -> str:
     for tag in soup(["script", "style", "meta", "head"]):
         tag.decompose()
     return soup.get_text(separator=" ")
+
+
+def crawl() -> dict[str, str]:
+    """
+    Crawl the entire website starting from BASE_URL.
+    Returns a dict mapping page URL -> raw page text.
+    """
+    visited = set()
+    to_visit = [BASE_URL]
+    pages = {}
+
+    while to_visit:
+        url = to_visit.pop(0)
+
+        if url in visited:
+            continue
+
+        print(f"[crawler] Fetching: {url}")
+        soup = get_page(url)
+
+        if soup is None:
+            visited.add(url)
+            continue
+
+        visited.add(url)
+        pages[url] = get_text(soup)
+
+        # Discover new links
+        links = get_links(soup, url)
+        for link in links:
+            if link not in visited:
+                to_visit.append(link)
+
+        # Politeness window — wait before next request
+        if to_visit:
+            print(f"[crawler] Waiting {POLITENESS_WINDOW}s...")
+            time.sleep(POLITENESS_WINDOW)
+
+    print(f"[crawler] Done. Crawled {len(pages)} pages.")
+    return pages
