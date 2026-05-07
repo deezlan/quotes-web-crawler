@@ -18,3 +18,35 @@ def tokenize(text: str) -> list[str]:
     text = text.lower()
     tokens = re.findall(r'\b[a-z]+\b', text)
     return tokens
+
+
+def build_index(pages: dict[str, str]) -> dict:
+    """
+    Build an inverted index from crawled pages.
+    
+    Takes a dict of {url: raw_text} and returns an inverted index:
+    {
+        "word": {
+            "url": {
+                "frequency": 3,
+                "positions": [0, 5, 12]
+            }
+        }
+    }
+    """
+    index = {}
+
+    for url, text in pages.items():
+        tokens = tokenize(text)
+
+        for position, word in enumerate(tokens):
+            if word not in index:
+                index[word] = {}
+
+            if url not in index[word]:
+                index[word][url] = {"frequency": 0, "positions": []}
+
+            index[word][url]["frequency"] += 1
+            index[word][url]["positions"].append(position)
+
+    return index
