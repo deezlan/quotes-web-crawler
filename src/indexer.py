@@ -50,3 +50,27 @@ def build_index(pages: dict[str, str]) -> dict:
             index[word][url]["positions"].append(position)
 
     return index
+
+
+def save_index(index: dict) -> None:
+    """
+    Save the inverted index to disk as a JSON file.
+    """
+    os.makedirs("data", exist_ok=True)
+    with open(INDEX_PATH, "w", encoding="utf-8") as f:
+        json.dump(index, f, indent=2)
+    print(f"[indexer] Index saved to {INDEX_PATH}")
+
+
+def load_index() -> dict:
+    """
+    Load the inverted index from disk.
+    Returns an empty dict if no index file exists.
+    """
+    if not os.path.exists(INDEX_PATH):
+        print("[indexer] No index file found. Run 'build' first.")
+        return {}
+    with open(INDEX_PATH, "r", encoding="utf-8") as f:
+        index = json.load(f)
+    print(f"[indexer] Index loaded from {INDEX_PATH}")
+    return index
