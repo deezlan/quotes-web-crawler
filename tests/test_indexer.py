@@ -1,5 +1,9 @@
+import os
+import json
+import tempfile
 import unittest
-from src.indexer import tokenize, build_index
+from unittest.mock import patch
+from src.indexer import tokenize, build_index, save_index, load_index
 
 
 class TestTokenize(unittest.TestCase):
@@ -75,6 +79,62 @@ class TestBuildIndex(unittest.TestCase):
         }
         result = build_index(pages)
         self.assertNotIn("http://example.com/2", result["hello"])
+
+
+class TestSaveAndLoadIndex(unittest.TestCase):
+
+    def setUp(self):
+        """Use a temporary directory for all file operations."""
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.temp_path = os.path.join(self.temp_dir.name, "index.json")
+
+    def tearDown(self):
+        """Clean up temp directory after each test."""
+        self.temp_dir.cleanup()
+
+    @patch("src.indexer.INDEX_PATH")
+    def test_save_creates_file(self, mock_path):
+        mock_path.__str__ = lambda s: self.temp_path
+        with patch("src.indexer.INDEX_PATH", self.temp_path):
+            save_index({"hello": {}})
+            self.assertTrue(os.path.exists(self.temp_path))
+
+    @patch("src.indexer.INDEX_PATH")
+    def test_save_and_load_roundtrip(self, mock_path):
+        index = {"hello": {"http://example.com": {"frequency": 1, "positions": [0]}}}
+        with patch("src.indexer.INDEX_PATH", self.temp_path):
+            save_index(index)
+            result = load_index()
+            self.assertEqual(result, index)
+
+    @patch("src.indexer.INDEX_PATH")
+    def test_save_writes_valid_json(self, mock_path):
+        with patch("src.indexer.INDEX_PATH", self.temp_path):
+            save_index({"hello": {}})
+            with open(self.temp_path, "r") as f:
+                data = json.load(f)
+            self.assertIsInstance(data, dict)
+
+    @patch("src.indexer.INDEX_PATH", "/nonexistent/path/index.json")
+    def test_load_returns_empty_if_no_file(self):
+        result = load_index()
+        self.assertEqual(result, {})
+
+    @patch("src.indexer.INDEX_PATH")
+    def test_load_returns_dict(self, mock_path):
+        with patch("src.indexer.INDEX_PATH", self.temp_path):
+            save_index({"word": {}})
+            result = load_index()
+            self.assertIsInstance(result, dict)
+
+    @patch("src.indexer.INDEX_PATH")
+    def test_save_overwrites_existing(self, mock_path):
+        with patch("src.indexer.INDEX_PATH", self.temp_path):
+            save_index({"old": {}})
+            save_index({"new": {}})
+            result = load_index()
+            self.assertIn("new", result)
+            self.assertNotIn("old", result)
 
 
 if __name__ == "__main__":
