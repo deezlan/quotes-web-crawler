@@ -33,6 +33,18 @@ def run_shell():
             print("  find <query>       Find pages containing all query terms")
             print("  quit               Exit the shell\n")
 
+        elif command == "build":
+            print("[shell] Starting crawl...")
+            pages = crawl()
+            index = build_index(pages)
+            save_index(index)
+            print(f"[shell] Index built with {len(index)} unique words.")
+
+        elif command == "load":
+            index = load_index()
+            if index:
+                print(f"[shell] Index loaded with {len(index)} unique words.")
+
         else:
             print(f"[shell] Unknown command: '{command}'. Type 'help' for options.")
 
