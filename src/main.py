@@ -45,6 +45,18 @@ def run_shell():
             if index:
                 print(f"[shell] Index loaded with {len(index)} unique words.")
 
+        elif command == "print":
+            if not argument:
+                print("[shell] Usage: print <word>")
+            else:
+                print_index(index, argument)
+
+        elif command == "find":
+            if not argument:
+                print("[shell] Usage: find <query>")
+            else:
+                find_pages(index, argument)
+
         else:
             print(f"[shell] Unknown command: '{command}'. Type 'help' for options.")
 
