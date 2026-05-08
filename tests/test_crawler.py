@@ -1,3 +1,7 @@
+"""
+test_crawler.py - Unit tests for the crawler module.
+"""
+
 import unittest
 import requests
 from unittest.mock import patch, MagicMock

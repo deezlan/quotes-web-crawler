@@ -1,4 +1,6 @@
 """
+indexer.py - Builds and manages the inverted index.
+
 Takes raw page text from the crawler and produces an inverted index
 mapping each word to the pages it appears in, with frequency and positions.
 """
