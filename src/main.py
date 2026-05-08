@@ -1,9 +1,23 @@
+"""
+main.py - Command-line interface for the search engine.
+
+Provides an interactive shell with four commands:
+    build  - Crawl the website and build the inverted index
+    load   - Load a previously built index from disk
+    print  - Print the index entry for a word
+    find   - Find all pages containing the query terms
+"""
+
 from src.crawler import crawl
 from src.indexer import build_index, save_index, load_index
 from src.search import print_index, find_pages
 
 
 def run_shell():
+    """
+    Start the interactive command-line shell.
+    Maintains index state across commands within a session.
+    """
     index = {}
     print("Search Engine Shell — type 'help' for commands, 'quit' to exit.\n")
 
