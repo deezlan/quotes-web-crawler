@@ -1,3 +1,7 @@
+"""
+test_indexer.py - Unit tests for the indexer module.
+"""
+
 import os
 import json
 import tempfile

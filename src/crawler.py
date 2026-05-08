@@ -1,4 +1,6 @@
 """
+crawler.py - Web crawler for quotes.toscrape.com
+
 Crawls all pages of the target website, respecting a politeness
 window of at least 6 seconds between requests.
 """

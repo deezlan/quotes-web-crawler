@@ -1,4 +1,6 @@
 """
+search.py - Search functionality for the inverted index.
+
 Provides print and find operations against a loaded inverted index.
 """
 
